@@ -183,10 +183,14 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 			);
 			if (this.plugin.settings.useExternalEditor) {
 				const filePath = `${getSnippetDirectory(this.app)}${file.name}`;
+				console.log('[CSS Editor] Opening file in external editor:', {
+					filePath,
+					editorPath: this.plugin.settings.externalEditorPath
+				});
 				this.close();
 				this.plugin.openInExternalEditor(filePath).catch(error => {
 					new ErrorNotice('无法打开外部编辑器，请检查设置');
-					console.error('Failed to open external editor:', error);
+					console.error('[CSS Editor] Failed to open external editor:', error);
 				});
 			}
 		} else {
@@ -227,10 +231,14 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 				} else {
 					if (this.plugin.settings.useExternalEditor) {
 						const filePath = `${getSnippetDirectory(this.app)}${item.name}`;
+						console.log('[CSS Editor] Opening file in external editor:', {
+							filePath,
+							editorPath: this.plugin.settings.externalEditorPath
+						});
 						this.close();
 						this.plugin.openInExternalEditor(filePath).catch(error => {
 							new ErrorNotice('无法打开外部编辑器，请检查设置');
-							console.error('Failed to open external editor:', error);
+							console.error('[CSS Editor] Failed to open external editor:', error);
 						});
 					} else {
 						openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {
@@ -247,10 +255,14 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 			const openInNewTab = evt.metaKey;
 			if (this.plugin.settings.useExternalEditor) {
 				const filePath = `${getSnippetDirectory(this.app)}${item.name}`;
+				console.log('[CSS Editor] Opening file in external editor:', {
+					filePath,
+					editorPath: this.plugin.settings.externalEditorPath
+				});
 				this.close();
 				this.plugin.openInExternalEditor(filePath).catch(error => {
 					new ErrorNotice('无法打开外部编辑器，请检查设置');
-					console.error('Failed to open external editor:', error);
+					console.error('[CSS Editor] Failed to open external editor:', error);
 				});
 			} else {
 				openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {

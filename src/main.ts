@@ -1,4 +1,4 @@
-import { Plugin, PluginSettingTab, Setting, App } from "obsidian";
+import { Plugin, PluginSettingTab, Setting, App, FileSystemAdapter } from "obsidian";
 import { CssEditorView, VIEW_TYPE_CSS } from "src/views/CssEditorView";
 import { CssSnippetFuzzySuggestModal } from "src/modals/CssSnippetFuzzySuggestModal";
 import { ignoreObsidianHotkey } from "src/obsidian/ignore-obsidian-hotkey";
@@ -127,7 +127,7 @@ export default class CssEditorPlugin extends Plugin {
 			)
 		);
 
-		this.registerView(VIEW_TYPE_CSS, (leaf) => new CssEditorView(leaf, this));
+		this.registerView(VIEW_TYPE_CSS, (leaf) => new CssEditorView(leaf));
 	}
 
 	onunload() {}
@@ -158,15 +158,30 @@ export default class CssEditorPlugin extends Plugin {
 
 	async openInExternalEditor(filePath: string): Promise<void> {
 		if (!this.settings.useExternalEditor || !this.settings.externalEditorPath) {
+			console.log('[CSS Editor] External editor is not configured:', {
+				useExternalEditor: this.settings.useExternalEditor,
+				externalEditorPath: this.settings.externalEditorPath
+			});
 			return;
 		}
 
 		try {
+			const adapter = this.app.vault.adapter as FileSystemAdapter;
+			const vaultPath = await adapter.getFullPath('');
+			const absoluteFilePath = await adapter.getFullPath(filePath);
+			console.log('[CSS Editor] Opening file:', {
+				vaultPath,
+				filePath,
+				absoluteFilePath,
+				editorPath: this.settings.externalEditorPath
+			});
 			const execAsync = promisify(exec);
-			await execAsync(`${this.settings.externalEditorPath} "${filePath}"`);
+			const command = `${this.settings.externalEditorPath} "${absoluteFilePath}"`;
+			console.log('[CSS Editor] Executing command:', command);
+			await execAsync(command);
 		} catch (error) {
 			new ErrorNotice('无法打开外部编辑器，请检查设置');
-			console.error('Failed to open external editor:', error);
+			console.error('[CSS Editor] Failed to open external editor:', error);
 		}
 	}
 }

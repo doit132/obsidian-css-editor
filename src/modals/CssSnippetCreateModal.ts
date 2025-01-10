@@ -1,6 +1,7 @@
 import { App, Modal, TextComponent } from "obsidian";
 import CssEditorPlugin from "src/main";
 import { ErrorNotice } from "../obsidian/Notice";
+import { getSnippetDirectory } from "../obsidian/file-system-helpers";
 
 export class CssSnippetCreateModal extends Modal {
 	private value: string;
@@ -41,9 +42,13 @@ export class CssSnippetCreateModal extends Modal {
 				this.close();
 				if (this.plugin.settings.useExternalEditor) {
 					const filePath = `${getSnippetDirectory(this.app)}${file.name}`;
+					console.log('[CSS Editor] Opening file in external editor:', {
+						filePath,
+						editorPath: this.plugin.settings.externalEditorPath
+					});
 					this.plugin.openInExternalEditor(filePath).catch(error => {
 						new ErrorNotice('无法打开外部编辑器，请检查设置');
-						console.error('Failed to open external editor:', error);
+						console.error('[CSS Editor] Failed to open external editor:', error);
 					});
 				}
 			} catch (err) {
