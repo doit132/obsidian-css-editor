@@ -177,10 +177,18 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 			this.inputEl.value.trim().length > 0 && item.match.score === 0;
 		if (isCreateNewDueToNoSuggestion && item.item) {
 			const openInNewTab = evt.metaKey;
-			await this.plugin.createAndOpenSnippet(
+			const file = await this.plugin.createAndOpenSnippet(
 				item.item.name,
 				openInNewTab
 			);
+			if (this.plugin.settings.useExternalEditor) {
+				const filePath = `${getSnippetDirectory(this.app)}${file.name}`;
+				this.close();
+				this.plugin.openInExternalEditor(filePath).catch(error => {
+					new ErrorNotice('无法打开外部编辑器，请检查设置');
+					console.error('Failed to open external editor:', error);
+				});
+			}
 		} else {
 			await this.onChooseItem(item.item, evt);
 		}
@@ -217,9 +225,18 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 						openInNewTab
 					);
 				} else {
-					openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {
-						file: item,
-					});
+					if (this.plugin.settings.useExternalEditor) {
+						const filePath = `${getSnippetDirectory(this.app)}${item.name}`;
+						this.close();
+						this.plugin.openInExternalEditor(filePath).catch(error => {
+							new ErrorNotice('无法打开外部编辑器，请检查设置');
+							console.error('Failed to open external editor:', error);
+						});
+					} else {
+						openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {
+							file: item,
+						});
+					}
 				}
 			} else if (evt.key === "Delete") {
 				await detachCssFileLeaves(this.app.workspace, item);
@@ -228,9 +245,18 @@ export class CssSnippetFuzzySuggestModal extends FuzzySuggestModal<CssFile> {
 			}
 		} else {
 			const openInNewTab = evt.metaKey;
-			openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {
-				file: item,
-			});
+			if (this.plugin.settings.useExternalEditor) {
+				const filePath = `${getSnippetDirectory(this.app)}${item.name}`;
+				this.close();
+				this.plugin.openInExternalEditor(filePath).catch(error => {
+					new ErrorNotice('无法打开外部编辑器，请检查设置');
+					console.error('Failed to open external editor:', error);
+				});
+			} else {
+				openView(this.app.workspace, VIEW_TYPE_CSS, openInNewTab, {
+					file: item,
+				});
+			}
 		}
 	}
 }

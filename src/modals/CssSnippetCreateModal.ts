@@ -34,11 +34,18 @@ export class CssSnippetCreateModal extends Modal {
 		} else if (evt.key === "Enter") {
 			try {
 				const openInNewTab = evt.metaKey;
-				await this.plugin.createAndOpenSnippet(
+				const file = await this.plugin.createAndOpenSnippet(
 					this.value,
 					openInNewTab
 				);
 				this.close();
+				if (this.plugin.settings.useExternalEditor) {
+					const filePath = `${getSnippetDirectory(this.app)}${file.name}`;
+					this.plugin.openInExternalEditor(filePath).catch(error => {
+						new ErrorNotice('无法打开外部编辑器，请检查设置');
+						console.error('Failed to open external editor:', error);
+					});
+				}
 			} catch (err) {
 				if (err instanceof Error) {
 					new ErrorNotice(err.message);
